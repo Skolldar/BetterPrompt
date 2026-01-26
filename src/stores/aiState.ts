@@ -1,18 +1,13 @@
 import { create } from "zustand";
-import AIService from "../services/AIService";
-
-export type AIState = {
-    generatedPrompt: string;
-    isGenerating: boolean;
-    generatePrompt: (prompt: string) => Promise<void>;
-};
+import type { AIState } from "../types";
+import aiService from "../services/AIService";  
 
 const useAIState = create<AIState>((set) => ({
     generatedPrompt: "",
     isGenerating: false,
     generatePrompt: async (userGoal: string) => {
         set({ isGenerating: true, generatedPrompt: "" });
-        const data = await AIService.generatePrompt(userGoal);
+        const data = aiService.generatePrompt(userGoal);
 
         for await (const textPart of data) {
             set((state) => ({
