@@ -7,7 +7,6 @@ import ReactMarkdown from "react-markdown";
 function App() {
   const [userGoal, setUserGoal] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [showPromptSection, setShowPromptSection] = useState(false);
   const generatedPrompt = useAIState((state) => state.generatedPrompt);
   const isGenerating = useAIState((state) => state.isGenerating);
