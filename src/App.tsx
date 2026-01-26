@@ -52,6 +52,7 @@ function App() {
     <header className="p-10 bg-gray-800 text-white">
       <div className="container mx-auto">
         <a href="/">
+        <img src=""/>
           <h1 className="cursor-pointer lg:text-6xl font-bold text-3xl">Better Prompt!</h1>
         </a>
       </div>
