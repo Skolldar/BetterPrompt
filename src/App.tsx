@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 function App() {
   const [userGoal, setUserGoal] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showPromptSection, setShowPromptSection] = useState(false);
   const generatedPrompt = useAIState((state) => state.generatedPrompt);
   const isGenerating = useAIState((state) => state.isGenerating);
@@ -57,7 +58,7 @@ function App() {
       </div>
     </header>
 
-    <main className="max-w-7xl mx-auto p-4 my-8">
+    <main className="container mx-auto my-8 p-4">
       <h2 className="text-4xl text-center">
       </h2>
       <section>
@@ -107,7 +108,7 @@ function App() {
                 <div className="text-gray-700 whitespace-pre-wrap">
                   {
                     generatedPrompt ? <ReactMarkdown>{generatedPrompt}</ReactMarkdown>
-                    : "The AI-generated prompt will appear here."
+                    : "An error occurred, please try again."
                   }
                 </div>
                 {generatedPrompt && (
@@ -127,7 +128,7 @@ function App() {
       )}
     </main>
     
-    <footer className="p-4 bg-gray-200 text-center flex justify-center items-center w-full">
+    <footer className="p-4 bg-gray-200 text-center flex justify-center items-center fixed bottom-0 left-0 w-full">
       <p className="text-sm text-gray-600">© 2024 Better Prompt. All rights reserved.</p>
     </footer>
       
