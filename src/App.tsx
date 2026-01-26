@@ -128,7 +128,7 @@ function App() {
     </main>
     
     <footer className="p-4 bg-gray-200 text-center flex justify-center items-center fixed bottom-0 left-0 w-full">
-      <p className="text-sm text-gray-600">© 2024 Better Prompt. All rights reserved.</p>
+      <p className="text-sm text-gray-600">© {new Date().getFullYear()} Better Prompt. All rights reserved.</p>
     </footer>
       
     </>
