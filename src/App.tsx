@@ -59,9 +59,8 @@ function App() {
 
     <main className="max-w-7xl mx-auto p-4 my-5">
       <h2 className="text-4xl text-center">
-        Welcome to the Better Prompt application.
       </h2>
-      <section className="my-8">
+      <section>
         <form onSubmit={handleSubmit}>
           <label className="block mb-2 text-xl font-medium text-gray-700">
             Describe what you want to achieve:
@@ -105,12 +104,12 @@ function App() {
               </div>
             ) : (
               <div>
-                <p className="text-gray-700 whitespace-pre-wrap">
+                <div className="text-gray-700 whitespace-pre-wrap">
                   {
                     generatedPrompt ? <ReactMarkdown>{generatedPrompt}</ReactMarkdown>
                     : "The AI-generated prompt will appear here."
                   }
-                </p>
+                </div>
                 {generatedPrompt && (
                   <button
                     className="mt-4 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 shrink-0"
