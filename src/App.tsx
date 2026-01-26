@@ -57,7 +57,7 @@ function App() {
       </div>
     </header>
 
-    <main className="max-w-7xl mx-auto p-4 my-5">
+    <main className="max-w-7xl mx-auto p-4 my-8">
       <h2 className="text-4xl text-center">
       </h2>
       <section>
@@ -127,7 +127,7 @@ function App() {
       )}
     </main>
     
-    <footer className="p-4 bg-gray-200 text-center flex justify-center items-center fixed bottom-0 left-0 w-full">
+    <footer className="p-4 bg-gray-200 text-center flex justify-center items-center w-full">
       <p className="text-sm text-gray-600">© 2024 Better Prompt. All rights reserved.</p>
     </footer>
       
