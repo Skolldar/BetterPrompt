@@ -12,6 +12,31 @@ function App() {
   const isGenerating = useAIState((state) => state.isGenerating);
   const generatePrompt = useAIState((state) => state.generatePrompt);
 
+  const questionLikeRegex = /^(who|what|where|when|why|how|is|are|can)\b/i;
+  const containsPromptVerb = /(improve|rewrite|refine|polish|tighten|make.*prompt)/i;
+
+  const validateInput = (goal: string) => {
+    const trimmed = goal.trim();
+
+    if (!trimmed) {
+      throw new Error("Please enter what you want to achieve.");
+    }
+
+    if (trimmed.length < 10) {
+      throw new Error("Add a bit more detail so we can improve your prompt.");
+    }
+
+    if (trimmed.length > 500) {
+      throw new Error("Keep the prompt under 500 characters.");
+    }
+
+    if (questionLikeRegex.test(trimmed) && !containsPromptVerb.test(trimmed)) {
+      throw new Error("This tool only improves prompts. Please describe the prompt you want refined.");
+    }
+
+    return trimmed;
+  };
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,14 +46,16 @@ function App() {
     const form = new FormData(e.currentTarget);
     const userGoal = form.get("goalInput") as string;
 
-    if (!userGoal) {
-      toast.error("Please enter what you want to achieve.");
-      setLoading(false);
+    try {
+      const trimmedGoal = validateInput(userGoal || "");
+      await generatePrompt(trimmedGoal);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to generate prompt.";
+      toast.error(message);
       setShowPromptSection(false);
-      return;
+    } finally {
+      setLoading(false);
     }
-    await generatePrompt(userGoal);
-    setLoading(false);
   };
 
   const handleCopy = async () => {
@@ -66,11 +93,12 @@ function App() {
           <label className="block mb-2 text-xl font-medium text-gray-700">
             Describe what you want to achieve:
           </label>
+          <p className="mb-2 text-md text-gray-600">Only share the prompt you want improved. <span className="font-semibold text-sm">Direct questions or tasks to execute will be rejected.</span></p>
           <textarea
             id="goalInput"
             name="goalInput"
             className={`w-full p-4 border border-gray-300 rounded-md ${(loading || isGenerating) ? 'bg-gray-100' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-            placeholder="E.g. Summarize a news article, write a poem, etc."
+            placeholder="E.g. Improve my prompt to generate a creative story about a dragon and a knight."
             value={userGoal}
             onChange={(e) => setUserGoal(e.target.value)}
             maxLength={500}
