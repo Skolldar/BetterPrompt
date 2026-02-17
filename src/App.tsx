@@ -8,6 +8,7 @@ function App() {
   const [userGoal, setUserGoal] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPromptSection, setShowPromptSection] = useState(false);
+  
   const generatedPrompt = useAIState((state) => state.generatedPrompt);
   const isGenerating = useAIState((state) => state.isGenerating);
   const generatePrompt = useAIState((state) => state.generatePrompt);
@@ -44,11 +45,15 @@ function App() {
     setShowPromptSection(true);
 
     const form = new FormData(e.currentTarget);
+    const promptStyle = (form.get("style") as string | null) as "professional" | "simple";
+
+    const humanize = form.get("humanize") ? true : false;
+
     const userGoal = form.get("goalInput") as string;
 
     try {
       const trimmedGoal = validateInput(userGoal || "");
-      await generatePrompt(trimmedGoal);
+      await generatePrompt(trimmedGoal, promptStyle || "professional", humanize);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to generate prompt.";
       toast.error(message);
@@ -61,7 +66,6 @@ function App() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(generatedPrompt);
-      console.log("Copied to clipboard:", generatedPrompt);
       toast.success("Prompt copied to clipboard!");
     } catch {
       toast.error("Failed to copy prompt.");
@@ -79,7 +83,6 @@ function App() {
     <header className="p-10 bg-gray-800 text-white">
       <div className="container mx-auto">
         <a href="/">
-        <img src=""/>
           <h1 className="cursor-pointer lg:text-6xl font-bold text-3xl">Better Prompt!</h1>
         </a>
       </div>
@@ -94,6 +97,37 @@ function App() {
             Describe what you want to achieve:
           </label>
           <p className="mb-2 text-md text-gray-600">Only share the prompt you want improved. <span className="font-semibold text-sm">Direct questions or tasks to execute will be rejected.</span></p>
+
+          <div className="flex gap-10 py-5">
+            <div className="inline-flex items-center">
+              <label className="relative flex items-center cursor-pointer">
+                <input name="style" value="simple" type="radio" className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" id="simple" />
+                <span className="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                </span>
+              </label>
+              <label className="ml-2 text-slate-600 cursor-pointer text-sm">Simple</label>
+            </div>
+          
+            <div className="inline-flex items-center">
+              <label className="relative flex items-center cursor-pointer">
+                <input name="style" value="professional" type="radio" className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" id="professional" defaultChecked />
+                <span className="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                </span>
+              </label>
+              <label className="ml-2 text-slate-600 cursor-pointer text-sm">Professional</label>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mb-4">
+            <input
+              id="humanize"
+              name="humanize"
+              type="checkbox"
+              className="h-4 w-4 cursor-pointer rounded border-gray-300"
+            />
+            <label htmlFor="humanize" className="text-sm text-slate-600 cursor-pointer">
+              Humanize output <span className="text-xs text-gray-500">(can contain small grammar quirks, avoid unusual punctuation/symbols inside words)</span>
+            </label>
+          </div>
           <textarea
             id="goalInput"
             name="goalInput"
@@ -164,4 +198,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

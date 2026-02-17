@@ -47,12 +47,12 @@ const validateImprovedPrompt = (text: string) => {
 const useAIState = create<AIState>((set) => ({
     generatedPrompt: "",
     isGenerating: false,
-    generatePrompt: async (userGoal: string) => {
+    generatePrompt: async (userGoal: string, style: "professional" | "simple" = "professional", humanize: boolean = false) => {
         set({ isGenerating: true, generatedPrompt: "" });
 
         try {
             enforceRateLimit();
-            const data = aiService.generatePrompt(userGoal);
+            const data = aiService.generatePrompt(userGoal, style, humanize);
 
             let fullResponse = "";
             for await (const textPart of data) {

@@ -2,13 +2,14 @@ import { streamText } from "ai";
 import { openRouter } from "../lib/ai";
 import type { AIService } from "../types";
 
-// Basic guardrails to ensure we only accept prompt-improvement use cases
+// Guardrails to block obvious prompt injection attempts
 const questionLikeRegex = /^(who|what|where|when|why|how|is|are|can)\b/i;
-const forbiddenPhrases = [
+const injectionPhrases = [
     "ignore previous instructions",
-    "system prompt",
+    "forget everything",
     "jailbreak",
-    "prompt injection",
+    "bypass",
+    "override system",
 ];
 
 const validateUserGoal = (userGoal: string) => {
@@ -30,21 +31,44 @@ const validateUserGoal = (userGoal: string) => {
         throw new Error("This tool only improves prompts. Describe the prompt you want refined.");
     }
 
-    if (forbiddenPhrases.some((phrase) => trimmed.toLowerCase().includes(phrase))) {
-        throw new Error("Unsafe or out-of-scope request. Please stick to prompt improvement.");
+    if (injectionPhrases.some((phrase) => trimmed.toLowerCase().includes(phrase))) {
+        throw new Error("This request looks like a prompt injection attempt. Please describe a legitimate prompt improvement.");
     }
 
     return trimmed;
 };
 
 const aiService: AIService = {
-    generatePrompt(userGoal: string) {
+    generatePrompt(userGoal: string, style: "professional" | "simple" = "professional", humanize: boolean = false) {
         const safeGoal = validateUserGoal(userGoal);
+
+        const templates = {
+            simple: {
+                system:
+                    "You are a helpful assistant that improves prompts by making them clear, concise, and direct. Your only task is to enhance the prompt for better AI understanding. Do not add any extra information, context, or details. Focus on making the prompt straightforward and easy to understand for any AI model.",
+                promptInstruction:
+                    "Improve the following text into a clear and concise prompt for AI. Do not add any extra information or context. Input:",
+            },
+            professional: {
+                system:
+                    "You are an expert prompt generator that enhances prompts by adding relevant details, context, and clarity to make them more effective for AI generation. Your task is to take the user's input and transform it into a well-crafted prompt that provides clear instructions and necessary information for optimal AI understanding. Focus on improving the prompt while maintaining the user's original intent.",
+                promptInstruction:
+                    "Improve the following text into a clear, detailed, and effective prompt for AI generation. Add relevant context and information to enhance the prompt's clarity and effectiveness. Input:",
+            },
+        } as const;
+
+        const chosen = templates[style];
+
+        const humanizeNote = humanize
+            ? `\n\nWhen responding to the generated prompt, the target AI should write in simple, natural human English. Allow small, natural grammatical quirks, avoid unusual punctuation or symbols inside words (e.g., use "self taught" not "selft-taught"), and prefer plain spacing. Do not add extra context beyond what the prompt asks.`
+            : "";
+
         const result = streamText({
             model: openRouter("liquid/lfm-2.5-1.2b-instruct:free"),
-            prompt: `Your only task is to improve the following text so it becomes a clear, detailed, and effective prompt for an AI. Do not answer questions, do not perform any other task, and do not return anything except the improved prompt. This service is strictly for prompt enhancement to help users communicate with other AIs. Input: ${safeGoal}`,
-            system: "You are an expert prompt generator. You must not answer questions, perform any other task, or return anything except the improved prompt. Only enhance the text for prompt generation. This service is strictly for prompt improvement to help users communicate with other AIs.",
+            prompt: `${chosen.promptInstruction} ${safeGoal}${humanizeNote}`,
+            system: chosen.system,
         });
+
         return result.textStream;
     },
 };
