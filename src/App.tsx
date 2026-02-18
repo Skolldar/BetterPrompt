@@ -83,12 +83,12 @@ function App() {
     <header className="p-10 bg-gray-800 text-white">
       <div className="container mx-auto">
         <a href="/">
-          <h1 className="cursor-pointer lg:text-6xl font-bold text-3xl">Better Prompt!</h1>
+          <h1 className="cursor-pointer lg:text-6xl font-bold text-3xl">Prompt Boost!</h1>
         </a>
       </div>
     </header>
 
-    <main className="container mx-auto my-8 p-4">
+    <main className="container mx-auto">
       <h2 className="text-4xl text-center">
       </h2>
       <section>
