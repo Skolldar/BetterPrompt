@@ -1,11 +1,11 @@
-# BetterPrompt 🚀
+# PromptBoost 🚀
 
 A simple web application that helps you improve your AI prompts. Instead of struggling with unclear or ineffective prompts, BetterPrompt takes your rough idea and transforms it into a clear, detailed, and effective prompt for AI interactions.
 [![Screenshot-from-2026-01-27-11-44-25.png](https://i.postimg.cc/T3JjLPtn/Screenshot-from-2026-01-27-11-44-25.png)](https://postimg.cc/213LgCR5)
 
 ## What It Does
 
-BetterPrompt is a prompt enhancement tool that:
+PromptBoost is a prompt enhancement tool that:
 - Takes your basic prompt or idea as input
 - Uses AI to refine and improve it into a clear, detailed prompt
 - Provides real-time streaming of the improved prompt
@@ -77,7 +77,7 @@ npm run dev
 ## Project Structure
 
 ```
-BetterPrompt/
+PromptBoost/
 ├── src/
 │   ├── components/          # React components (currently empty)
 │   ├── lib/
@@ -108,7 +108,7 @@ BetterPrompt/
 
 ## Safety Features
 
-BetterPrompt includes several guardrails to prevent misuse:
+PromptBoost includes several guardrails to prevent misuse:
 - Rejects direct questions that aren't about prompt improvement
 - Blocks prompt injection attempts
 - Validates input length and content
