@@ -1,17 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAIState from "./stores/aiState";
 import ReactMarkdown from "react-markdown";
 
 function App() {
-  const [userGoal, setUserGoal] = useState("");
+  const [userGoal, setUserGoal] = useState(() => {
+    try {
+      return localStorage.getItem("prompt_userGoal") || "";
+    } catch {
+      return "";
+    }
+  });
+  const [promptStyle, setPromptStyle] = useState<"professional" | "simple">(() => {
+    try {
+      return (localStorage.getItem("prompt_style") as "professional" | "simple") || "professional";
+    } catch {
+      return "professional";
+    }
+  });
+  const [humanize, setHumanize] = useState(() => {
+    try {
+      return localStorage.getItem("prompt_humanize") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [showPromptSection, setShowPromptSection] = useState(false);
   
   const generatedPrompt = useAIState((state) => state.generatedPrompt);
   const isGenerating = useAIState((state) => state.isGenerating);
   const generatePrompt = useAIState((state) => state.generatePrompt);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("prompt_userGoal", userGoal);
+    } catch {
+      console.warn("Failed to save userGoal to localStorage");
+    }
+  }, [userGoal]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("prompt_style", promptStyle);
+    } catch {
+      console.warn("Failed to save promptStyle to localStorage");
+    }
+  }, [promptStyle]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("prompt_humanize", String(humanize));
+    } catch {
+      console.warn("Failed to save humanize to localStorage");
+    }
+  }, [humanize]);
+
+  useEffect(() => {
+    if (generatedPrompt && !isGenerating) {
+      setShowPromptSection(true);
+    }
+  }, [generatedPrompt, isGenerating]);
 
   const questionLikeRegex = /^(who|what|where|when|why|how|is|are|can)\b/i;
   const containsPromptVerb = /(improve|rewrite|refine|polish|tighten|make.*prompt)/i;
@@ -42,18 +92,15 @@ function App() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setShowPromptSection(true);
 
     const form = new FormData(e.currentTarget);
-    const promptStyle = (form.get("style") as string | null) as "professional" | "simple";
-
-    const humanize = form.get("humanize") ? true : false;
-
-    const userGoal = form.get("goalInput") as string;
+    const selectedStyle = (form.get("style") as string | null) as "professional" | "simple";
+    const selectedHumanize = form.get("humanize") ? true : false;
+    const goal = form.get("goalInput") as string;
 
     try {
-      const trimmedGoal = validateInput(userGoal || "");
-      await generatePrompt(trimmedGoal, promptStyle || "professional", humanize);
+      const trimmedGoal = validateInput(goal || "");
+      await generatePrompt(trimmedGoal, selectedStyle || "professional", selectedHumanize);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to generate prompt.";
       toast.error(message);
@@ -96,13 +143,13 @@ function App() {
           <label className="block mb-2 text-xl font-medium text-gray-700">
             Describe what you want to achieve:
           </label>
-          <p className="mb-2 text-md text-gray-600">Only share the prompt you want improved. <span className="font-semibold text-sm">Direct questions or tasks to execute will be rejected.</span></p>
+          <p className="mb-2 text-md text-gray-600">Only share the prompt you want improved. <span className="font-semibold text-sm"><br />Direct questions or tasks to execute will be rejected.</span></p>
 
           <div className="flex gap-10 py-5">
             <div className="inline-flex items-center">
               <label className="relative flex items-center cursor-pointer">
-                <input name="style" value="simple" type="radio" className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" id="simple" />
-                <span className="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <input name="style" value="simple" type="radio" className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-blue-400 transition-all" id="simple" checked={promptStyle === "simple"} onChange={(e) => setPromptStyle(e.target.value as "professional" | "simple")} />
+                <span className="absolute bg-blue-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 </span>
               </label>
               <label className="ml-2 text-slate-600 cursor-pointer text-sm">Simple</label>
@@ -110,8 +157,8 @@ function App() {
           
             <div className="inline-flex items-center">
               <label className="relative flex items-center cursor-pointer">
-                <input name="style" value="professional" type="radio" className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all" id="professional" defaultChecked />
-                <span className="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <input name="style" value="professional" type="radio" className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-blue-400 transition-all" id="professional" checked={promptStyle === "professional"} onChange={(e) => setPromptStyle(e.target.value as "professional" | "simple")} />
+                <span className="absolute bg-blue-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 </span>
               </label>
               <label className="ml-2 text-slate-600 cursor-pointer text-sm">Professional</label>
@@ -123,16 +170,18 @@ function App() {
               name="humanize"
               type="checkbox"
               className="h-4 w-4 cursor-pointer rounded border-gray-300"
+              checked={humanize}
+              onChange={(e) => setHumanize(e.target.checked)}
             />
             <label htmlFor="humanize" className="text-sm text-slate-600 cursor-pointer">
-              Humanize output <span className="text-xs text-gray-500">(can contain small grammar quirks, avoid unusual punctuation/symbols inside words)</span>
+              Humanize output
             </label>
           </div>
           <textarea
             id="goalInput"
             name="goalInput"
             className={`w-full p-4 border border-gray-300 rounded-md ${(loading || isGenerating) ? 'bg-gray-100' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-            placeholder="E.g. Improve my prompt to generate a creative story about a dragon and a knight."
+            placeholder="E.g. Write a professional email requesting a salary increase. Highlight my accomplishments, use a respectful tone, and keep it concise (under 150 words)."
             value={userGoal}
             onChange={(e) => setUserGoal(e.target.value)}
             maxLength={500}
@@ -145,8 +194,8 @@ function App() {
           <div className="mt-4">
             <button
               type="submit"
-              className={`px-5 py-2 bg-blue-500 text-white cursor-pointer rounded-md hover:bg-blue-600 ${(loading || isGenerating) ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading || isGenerating}
+              className={`px-5 py-2 bg-blue-500 text-white cursor-pointer rounded-md hover:bg-blue-600 ${(loading || isGenerating || !userGoal.trim()) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading || isGenerating || !userGoal.trim()}
             >
               Generate Prompt
             </button>

@@ -8,7 +8,6 @@ const requestLog: number[] = [];
 
 const enforceRateLimit = () => {
     const now = Date.now();
-    // Drop old entries
     while (requestLog.length && now - requestLog[0] > REQUEST_WINDOW_MS) {
         requestLog.shift();
     }
@@ -27,25 +26,27 @@ const validateImprovedPrompt = (text: string) => {
         throw new Error("The model returned an empty response. Please try again.");
     }
 
-    if (normalized.length < 20) {
-        throw new Error("The improved prompt is too short. Please provide a clearer prompt and try again.");
-    }
-
-    const hasInstruction = /(write|create|generate|draft|compose|summarize|produce)/i.test(normalized);
-    if (!hasInstruction) {
-        throw new Error("The response does not look like a prompt. Please try again with a clearer request.");
-    }
-
-    const looksLikeAnswer = /(here's your answer|as an ai language model|sure, i can)/i.test(normalized);
-    if (looksLikeAnswer) {
-        throw new Error("The response looks like an answer, not a refined prompt. Please try again.");
-    }
-
     return normalized;
 };
 
+const getStoredPrompt = () => {
+    try {
+        return localStorage.getItem("prompt_generatedPrompt") || "";
+    } catch {
+        return "";
+    }
+};
+
+const savePromptToStorage = (prompt: string) => {
+    try {
+        localStorage.setItem("prompt_generatedPrompt", prompt);
+    } catch {
+        console.warn("Failed to save prompt to localStorage");
+    }
+};
+
 const useAIState = create<AIState>((set) => ({
-    generatedPrompt: "",
+    generatedPrompt: getStoredPrompt(),
     isGenerating: false,
     generatePrompt: async (userGoal: string, style: "professional" | "simple" = "professional", humanize: boolean = false) => {
         set({ isGenerating: true, generatedPrompt: "" });
@@ -64,10 +65,10 @@ const useAIState = create<AIState>((set) => ({
 
             const validated = validateImprovedPrompt(fullResponse);
             set({ generatedPrompt: validated, isGenerating: false });
+            savePromptToStorage(validated);
         } catch (error) {
             console.error(error);
-            const message = error instanceof Error ? error.message : "Unable to generate prompt.";
-            set({ isGenerating: false, generatedPrompt: message });
+            set({ isGenerating: false, generatedPrompt: "" });
             throw error;
         }
     },
