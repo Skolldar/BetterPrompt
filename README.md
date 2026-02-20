@@ -1,7 +1,7 @@
 # PromptBoost 🚀
 
 A simple web application that helps you improve your AI prompts. Instead of struggling with unclear or ineffective prompts, BetterPrompt takes your rough idea and transforms it into a clear, detailed, and effective prompt for AI interactions.
-[![Screenshot-from-2026-01-27-11-44-25.png](https://i.postimg.cc/T3JjLPtn/Screenshot-from-2026-01-27-11-44-25.png)](https://postimg.cc/213LgCR5)
+[![Screenshot-from-2026-02-20-09-26-58.png](https://i.postimg.cc/8c8d5yVj/Screenshot-from-2026-02-20-09-26-58.png)](https://postimg.cc/qhL6DxqT)
 
 ## What It Does
 
