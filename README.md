@@ -45,8 +45,8 @@ PromptBoost is a prompt enhancement tool that:
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd BetterPrompt
+git clone git@github.com:Skolldar/PromptBoost.git
+cd PromptBoost
 ```
 
 2. Install dependencies:
