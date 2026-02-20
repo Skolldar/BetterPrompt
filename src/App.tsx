@@ -199,6 +199,21 @@ function App() {
             >
               Generate Prompt
             </button>
+            <button
+              type="button"
+              className={`ml-3 px-5 py-2 bg-gray-300 text-gray-700 cursor-pointer rounded-md hover:bg-gray-400 ${loading || isGenerating || !userGoal.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => {
+                setUserGoal("");
+                setPromptStyle("professional");
+                setHumanize(false);
+                setShowPromptSection(false);
+              }}
+              disabled={loading || isGenerating || !userGoal.trim()}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H3a1 1 0 100 2h1v10a2 2 0 002 2h8a2 2 0 002-2V6h1a1 1 0 100-2h-2V3a1 1 0 00-1-1H6zm2 4a1 1 0 011 1v6a1 1 0 11-2 0V7a1 1 0 011-1zm4 0a1 1 0 011 1v6a1 1 0 11-2 0V7a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+            </button>
           </div>
         </form>
       </section>
