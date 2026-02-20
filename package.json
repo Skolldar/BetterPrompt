@@ -16,7 +16,6 @@
     "@openrouter/ai-sdk-provider": "^2.0.2",
     "@openrouter/sdk": "^0.4.0",
     "@tailwindcss/vite": "^4.1.18",
-    "franc-min": "^6.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-markdown": "^10.1.0",
